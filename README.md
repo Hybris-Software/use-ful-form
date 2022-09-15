@@ -24,6 +24,8 @@ The error object format is variable and depends on the values required by the in
 }
 ```
 
+<br>
+
 ## **How to use it**
 
 To install execute:
@@ -42,6 +44,9 @@ The parameter is a dictionary where the keys are the identifiers of the fields a
 | validator | `(input: string, values: any) => {value: boolean, message: string}` | A function used to validate the field. It takes the current value of the input and a dictionary `{fieldName: "actualValue"}` containing the values of all other inputs to the form. It should return the error value in the format described above. If it is not specified, the form will try to execute a built-in validator based on the input type |
 | formatter | `(value: string) => string`                                         | A function to format the input whenever its value changes                                                                                                                                                                                                                                                                                             |
 
+<br>
+<br>
+
 **_Returned parameters:_**
 
 | Parameter     | Type                                              | Description                                                                                                 |
@@ -52,50 +57,81 @@ The parameter is a dictionary where the keys are the identifiers of the fields a
 | isFormValid   | `() => boolean`                                   | Returns `true` if all the validations pass, `false` otherwise                                               |
 | getApiBody    | `() => any`                                       | Returns the body that sould be sent in the API call                                                         |
 
+<br>
+
 ## **Example**
 
-```javascript
-const  validateEmail = (e) => {
-	if (e.length === 0) {
-		return { value: null };
-	}
-	if (checkIfIsEmail(e)) {
-		return { value: true };
-	} else {
-		return { value: false, message: "Invalid email" };
-	}
-};
+### **Example 1 - Basic Usage**: use useForm() with built-in validators and built-in foramtter based on type. If you don't specify a validator, the hook will try to execute a built-in one based on the type.
 
-function  formatterLowerCase(value) {
-	return value.toLowerCase();
+```javascript
+const  form = useForm({
+	email: {
+		type: "email",
+	},
+	password: {
+		type: "password",
+	},
+	confirmPassword: {
+		type: "confirmPassword",
+	},
 }
 
-function  validateConfirmPassword(value, values) {
-	if (value !== values["password"]) {
-		return {
-			value:  false,
-			message: "Passwords do not match",
-		};
-	} else {
-		return {
-			value: true,
-		};
-	}
+return (
+...
+
+<InputField
+	className={Style.inputField}
+	label="Your Email"
+	type="email"
+	placeholder="Email"
+	onPaste={false}
+	validationOnBlur={true}
+	icon={<TbMail  />}
+	{...form.getInputProps("email")}
+/>
+
+<InputField
+	className={Style.inputField}
+	label="Your Password"
+	type="password"
+	placeholder="Password"
+	onPaste={false}
+	validationOnBlur={true}
+	icon={<TbMail  />}
+	{...form.getInputProps("password")}
+/>
+<InputField
+	className={Style.inputField}
+	label="Confirm Password"
+	type="confirmPassword"
+	placeholder="Confirm Password"
+	onPaste={false}
+	validationOnBlur={true}
+	icon={<TbMail  />}
+	{...form.getInputProps("confirmPassword")}
+/>
+
+...
+)
+```
+
+### **Example 2 - Advanced Usage**: use useForm() with custom validators and custom formatter. If you specify your own validator and/or formatter, the hook will override the built-in ones.
+
+```javascript
+const  yourEmailValidator = (e) => {
+	// your email validator
+};
+
+function  yourFormatter(value) {
+	// your formatter
 }
 
 const  form = useForm({
 	email: {
-		value:  "",
-		validator:  validateEmail,
-		formatter:  formatterLowerCase,
+		validator:  yourEmailValidator,
 	},
-	password: {
-		value:  "",
-		validator:  validatePassword,
-	},
-	confirmPassword: {
-		value:  "",
-		validator:  validateConfirmPassword,
+	firstNAme: {
+		formatter:  yourFormatter,
 	},
 }
 
@@ -111,6 +147,132 @@ return (
 	icon={<TbMail  />}
 	{...form.getInputProps("email")}
 />
+<InputField
+	className={Style.inputField}
+	label="First Name"
+	placeholder="First Name"
+	onPaste={false}
+	validationOnBlur={true}
+	icon={<TbMail  />}
+	{...form.getInputProps("firstName")}
+/>
 ...
 )
+```
+
+## **Built-in Validators**
+
+```javascript
+function validateCheckbox(value) {
+  if (!value) {
+    return {
+      value: false,
+    };
+  } else {
+    return {
+      value: true,
+    };
+  }
+}
+
+function validateConfirmPassword(value, values) {
+  if (value !== values["password"]) {
+    return {
+      value: false,
+      message: "Passwords do not match",
+    };
+  } else {
+    return {
+      value: true,
+    };
+  }
+}
+
+const validateEmail = (e) => {
+  function checkIfIsEmail(email) {
+    const re =
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+  }
+
+  if (checkIfIsEmail(e)) {
+    return { value: true };
+  } else {
+    return { value: false, message: "Invalid email" };
+  }
+};
+
+function validateNoEmptyInput(input) {
+  let inputSanitized;
+  inputSanitized = input.trim();
+
+  if (inputSanitized === "") {
+    return {
+      value: false,
+      message: "This field is required",
+    };
+  } else {
+    return {
+      value: true,
+    };
+  }
+}
+
+function checkPassword(password) {
+  if (password.length <= 8 || !password.match(/[a-z]/i)) {
+    return {
+      value: false,
+      message:
+        "Password must be at least 8 characters long and one lowercase letter",
+      security: "none",
+    };
+  } else if (!password.match(/[0-9]/)) {
+    return {
+      value: false,
+      message: "Password must contain at least one number",
+      security: "low",
+    };
+  } else if (!password.match(/[A-Z]/)) {
+    return {
+      value: false,
+      message: "Password must contain at least one uppercase letter",
+      security: "medium",
+    };
+  } else if (!password.match(/[^a-zA-Z0-9]/g)) {
+    return {
+      value: false,
+      message: "Password must contain at least one special character",
+      security: "high",
+    };
+  } else {
+    return {
+      value: true,
+      security: "strong",
+    };
+  }
+}
+
+const validatePassword = (value) => {
+  if (value.length === 0) {
+    return { value: null };
+  } else {
+    return checkPassword(value);
+  }
+};
+```
+
+## **Built-in Formatters**
+
+```javascript
+function formatterLowerCase(value) {
+  return value.toLowerCase();
+}
+
+function formatterUsername(value) {
+  function replaceSpecialCharacterWithSpace(str) {
+    return str.replace(/[^a-zA-Z0-9]\_\./g, "");
+  }
+
+  return replaceSpecialCharacterWithSpace(value.replace(" ", "").toLowerCase());
+}
 ```
