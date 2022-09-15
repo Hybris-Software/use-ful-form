@@ -1,6 +1,8 @@
-# **4.2 useForm**:
+# **use-ful-form | useForm**:
 
 ## **Introduction**
+
+This is a hook designed to be used with the `<InputField />` component we developed. The component has not yet been released to the public. As soon as the package is released on npm, we will post the download link here. In the meantime you can use this hook with your own components or download the github repository and fork it to add new features or adapt it to your own components!
 
 Hook used to manage the status of form inputs, their validation and formatting.
 
