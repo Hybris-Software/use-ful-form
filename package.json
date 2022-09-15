@@ -6,7 +6,7 @@
   },
   "description": "Simple way to create forms in React",
   "license": "MIT",
-  "repository": "bamblehorse/tiny",
+  "repository": "Hybris-Software/use-ful-form",
   "main": "index.js",
   "keywords": [
     "react",
