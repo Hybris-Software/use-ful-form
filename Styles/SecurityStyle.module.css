@@ -1,0 +1,36 @@
+/* Passowrd States */
+
+.low {
+  background-color: #ff5a005e;
+  border-color: #ff6100;
+}
+
+.low svg {
+  stroke: #ff6100;
+}
+
+.medium {
+  background-color: rgba(245, 162, 0, 0.2);
+  border-color: #f5a200;
+}
+
+.medium svg {
+  stroke: #f5a200;
+}
+
+.high {
+  background-color: rgba(0, 142, 255, 0.3);
+  border-color: #0080ff;
+}
+.high svg {
+  stroke: #0080ff;
+}
+
+.strong {
+  background-color: rgba(69, 198, 70, 0.2);
+  border-color: #00d085;
+}
+
+.strong svg {
+  stroke: #00d085;
+}
