@@ -98,7 +98,6 @@ const useForm = (inputs) => {
       var requiredVerification = true;
 
       if (!dirty[inputName]) {
-        updateError(inputName, { value: null });
         return
       }
 
