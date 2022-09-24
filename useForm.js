@@ -213,7 +213,7 @@ const useForm = (inputs) => {
     const inputList = Object.keys(inputs);
 
     inputList.forEach(item => {
-      apiBody[apiNames[item]] = inputs[item].value ? inputs[item].value : "";
+      apiBody[apiNames[item]] = values[item] ? values[item] : "";
     })
 
     return apiBody;
