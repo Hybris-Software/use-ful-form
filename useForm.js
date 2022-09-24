@@ -156,6 +156,26 @@ const useForm = (inputs) => {
     }
   }
 
+  // Push error
+  function pushError(key, error) {
+
+    if (error === null) {
+      setErrors((oldErrors) => ({
+        ...oldErrors,
+        [key]: { value: null }
+      }));
+    } else {
+      setErrors((oldErrors) => ({
+        ...oldErrors,
+        [key]: error
+      }));
+    }
+    setDirty(oldDirty => ({
+      ...oldDirty,
+      [key]: false
+    }))
+  }
+
   // Check if all the fields are valid
   function isFormValid() {
     let isValid = true;
@@ -191,7 +211,7 @@ const useForm = (inputs) => {
     return apiBody;
   }
 
-  return { values, errors, isFormValid, getInputProps, getApiBody, updateError };
+  return { values, errors, isFormValid, getInputProps, getApiBody, pushError };
 
 };
 
