@@ -191,7 +191,7 @@ const useForm = (inputs) => {
     return apiBody;
   }
 
-  return { values, errors, isFormValid, getInputProps, getApiBody };
+  return { values, errors, isFormValid, getInputProps, getApiBody, updateError };
 
 };
 
