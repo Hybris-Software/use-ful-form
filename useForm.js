@@ -61,6 +61,17 @@ function createInitialDirty(inputs) {
   return dirty;
 }
 
+function createInitialApiNames(inputs) {
+  const inputList = Object.keys(inputs);
+  const apiNames = {};
+
+  inputList.forEach(item => {
+    apiNames[item] = inputs[item].apiName ? inputs[item].apiName : item;
+  });
+
+  return apiNames;
+}
+
 function builtInFormatter(type, value) {
   if (type === "email") {
     return formatterLowerCase(value);
@@ -89,6 +100,7 @@ const useForm = (inputs) => {
   const [values, setValues] = useState(createInitialValues(inputs));
   const [errors, setErrors] = useState(createInitialErrors(inputs));
   const [dirty, setDirty] = useState(createInitialDirty(inputs));
+  const apiNames = createInitialApiNames(inputs);
 
   useEffect(() => {
     // Validate input
@@ -157,19 +169,15 @@ const useForm = (inputs) => {
   }
 
   // Push error
-  function pushError(key, error) {
+  function pushError(apiName, error) {
 
-    if (error === null) {
-      setErrors((oldErrors) => ({
-        ...oldErrors,
-        [key]: { value: null }
-      }));
-    } else {
-      setErrors((oldErrors) => ({
-        ...oldErrors,
-        [key]: error
-      }));
-    }
+    const key = Object.keys(apiNames).find(key => apiNames[key] === apiName);
+
+    setErrors((oldErrors) => ({
+      ...oldErrors,
+      [key]: error
+    }));
+
     setDirty(oldDirty => ({
       ...oldDirty,
       [key]: false
@@ -205,7 +213,7 @@ const useForm = (inputs) => {
     const inputList = Object.keys(inputs);
 
     inputList.forEach(item => {
-      apiBody[inputs[item].apiName ? inputs[item].apiName : item] = inputs[item].value ? inputs[item].value : "";
+      apiBody[apiNames[item]] = inputs[item].value ? inputs[item].value : "";
     })
 
     return apiBody;
