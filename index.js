@@ -10,6 +10,10 @@ import validatePassword from './FormValidators/validatePassword';
 // Styles
 import PasswordStyle from './Styles/SecurityStyle.module.css'
 
+// Utils
+import classNames from './Utils/classNames';
+import passwordStyleStates from './Utils/passwordStyleStates';
+
 export default useForm;
 
 export {
@@ -19,4 +23,6 @@ export {
     validateEmail,
     validatePassword,
     PasswordStyle,
+    classNames,
+    passwordStyleStates
 };  

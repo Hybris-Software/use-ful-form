@@ -276,3 +276,84 @@ function formatterUsername(value) {
   return replaceSpecialCharacterWithSpace(value.replace(" ", "").toLowerCase());
 }
 ```
+
+## **Built-in Utilities**
+
+### **classNames**
+
+`classNames` is a utility function that allows you to conditionally join classNames together. It is used in the library to conditionally add classNames to the components.
+
+```javascript
+function classNames(...classes) {
+  const finalClasses = [];
+  classes.forEach((classEntry) => {
+    if (typeof classEntry === "string") {
+      finalClasses.push(classEntry);
+    } else if (typeof classEntry === "object") {
+      if (classEntry.condition) {
+        finalClasses.push(classEntry.class);
+      }
+    }
+  });
+  return finalClasses.join(" ");
+}
+export default classNames;
+```
+
+### **PasswordStyle and passwordStyleStates**
+
+In order to customize the style of the password inputs based on the security level, you can use the following utility functions:
+
+```javascript
+function passwordStyleStates(
+  securityLevel,
+  lowClass,
+  mediumClass,
+  highClass,
+  strongClass
+) {
+  if (securityLevel === "low") {
+    return lowClass;
+  } else if (securityLevel === "medium") {
+    return mediumClass;
+  } else if (securityLevel === "high") {
+    return highClass;
+  } else if (securityLevel === "strong") {
+    return strongClass;
+  } else {
+    return "";
+  }
+}
+
+export default passwordStyleStates;
+```
+
+You can import `PasswordStyle` and `passwordStyleStates` that are respectively the styled component and the utility function. These are only a base for you to customize the style of the password input based on the security level.
+To import this function in your project, use the following code:
+
+```javascript
+// Import
+import useForm, {
+  PasswordStyle,
+  passwordStyleStates,
+} from "@hybris-software/use-ful-form";
+
+// How to use InputField with passwordStyleStates
+<InputField
+  className={classNames(
+    Style.inputField,
+    passwordStyleStates(
+      form.errors["password"].security,
+      PasswordStyle.low,
+      PasswordStyle.medium,
+      PasswordStyle.high,
+      PasswordStyle.strong
+    )
+  )}
+  label="Password"
+  type="password"
+  placeholder="Password"
+  icon={<Your Icon />}
+  {...form.getInputProps("password")}
+/>;
+````
