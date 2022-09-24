@@ -211,7 +211,7 @@ const useForm = (inputs) => {
 
     inputList.forEach(item => {
       if (inputs[item].sendToApi !== false) {
-        apiBody[apiNames[item]] = values[item] ? values[item] : "";
+        apiBody[apiNames[item]] = values[item] !== undefined ? values[item] : "";
       }
     })
 
