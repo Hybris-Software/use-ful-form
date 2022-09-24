@@ -10,7 +10,7 @@ import validateConfirmPassword from "./FormValidators/validateConfirmPassword";
 import formatterLowerCase from "./FormFormatters/formatterLowerCase";
 import formatterUsername from "./FormFormatters/formatterUsername";
 
-// Input Parameters: apiName, builtInValidator, builtInFormatter, formatter, required, value, validator 
+// Input Parameters: apiName, builtInValidator, builtInFormatter, formatter, required, value, validator, sendToApi
 
 function defaultValue(type) {
   switch (type) {
@@ -41,8 +41,7 @@ function createInitialErrors(inputs) {
     if (inputs[item].validator || inputs[item].required) {
       errors[item] = { value: null };
     }
-  }
-  );
+  });
 
   return errors;
 }
@@ -55,8 +54,7 @@ function createInitialDirty(inputs) {
     if (inputs[item].validator || inputs[item].required) {
       dirty[item] = false;
     }
-  }
-  );
+  });
 
   return dirty;
 }
@@ -93,7 +91,6 @@ function builtInValidator(type, value, values) {
     return undefined
   }
 }
-
 
 const useForm = (inputs) => {
 
@@ -213,7 +210,9 @@ const useForm = (inputs) => {
     const inputList = Object.keys(inputs);
 
     inputList.forEach(item => {
-      apiBody[apiNames[item]] = values[item] ? values[item] : "";
+      if (inputs[item].sendToApi !== false) {
+        apiBody[apiNames[item]] = values[item] ? values[item] : "";
+      }
     })
 
     return apiBody;
