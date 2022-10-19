@@ -8,7 +8,7 @@ import {
 
 const useForm = ({ inputs }) => {
   const initialValues = Object.keys(inputs).reduce((result, key) => {
-    result[key] = getDefaultValue(inputs[key].type, inputs[key].value);
+    result[key] = getDefaultValue(inputs[key].nature, inputs[key].value);
     return result;
   }, {});
 
@@ -55,13 +55,13 @@ const useForm = ({ inputs }) => {
     const newShowErrors = {};
     Object.entries(inputs).forEach(([key, inputDetails]) => {
       if (inputDetails.required) {
-        if (!getRequiredValidator(inputDetails.type)(values[key])) {
+        if (!getRequiredValidator(inputDetails.nature)(values[key])) {
           newErrors[key] = [false, "This field is required"];
           return;
         }
       }
 
-      const validator = getValidator(inputDetails.type, inputDetails.validator);
+      const validator = getValidator(inputDetails.nature, inputDetails.validator);
       if (validator) {
         newErrors[key] = validator(values[key], values);
       } else {
@@ -96,7 +96,7 @@ const useForm = ({ inputs }) => {
   };
 
   const setFieldValue = (key, value) => {
-    const formatter = getFormatter(inputs[key].type, inputs[key].formatter);
+    const formatter = getFormatter(inputs[key].nature, inputs[key].formatter);
     const formattedValue = formatter ? formatter(value) : value;
     const newValues = { ...values, [key]: formattedValue };
 
