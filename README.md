@@ -2,29 +2,28 @@
 
 ## **Introduction**
 
-This is a hook designed to be used with the `<InputField />` component we developed. The component has not yet been released to the public. As soon as the package is released on npm, we will post the download link here. In the meantime you can use this hook with your own components or download the github repository and fork it to add new features or adapt it to your own components!
-
-Hook used to manage the status of form inputs, their validation and formatting.
+This hook is useful for managing forms: input validation, formatting and saving values.
+It works with any input but it is recommended to use the `<InputField />` present in our UIKit.
 
 The input component should receive the required props using the `getInputProps` function returned by the hook. Those props are:
 
-- error: the current error object
 - value: the current input value
-- required: boolean, if the field is required
-- setValue(value, validate): set the input value, if validate is true the input will be validated, otherwise it will just be stored (default true)
+- setValue(value): set the input value, to be used in `onInput`
+- isValid: boolean, true if valid, false if there is an error, null if error should not be shown
+- errorDetails: error informations returned by the validator. Usually a string but may be an object, it depends on the validator output (see below)
+- setShowErrors(): to be called to manually trigger error show (usually in `onBlur`)
 
-The input validation is done by the hook which follows this order: `validateNoEmptyInput` if field is required, then if the field is not empty executes the specified `validator` or the built-in one, based on the field type.
+When the value changes, the following actions will be performed by the hook:
 
-The error object format is variable and depends on the values required by the input. It is automatically initialized as `{value: null}` at the beginning and then the validator should update it to `true` if the value is valid and `false` if there are some errors. It may contain other keys in addition to `value`, for example:
+1. Pass the new value to the formatter and saves the output
+2. For every input, if the input has the `required` option, executes a function based on the input `nature`, for example `email` and `username` are required to be not empty while `checkbox` has to be true. If it does not pass the check, a generic error is set, otherwise continues.
+3. Validation is performed for every input: if it is set a `validator` for the input that function is executed, otherwise one is chosen based on the `nature`, if available
 
-```
-{
-	value: boolean?
-	message: string?
-}
-```
+Errors are not always shown; the behavior is decided in the input options:
 
-<br>
+- Error/success will be always shown after a blur
+- If `errorOnEveryChange` is `true` the error/success will be shown while writing
+- If `checkSuccessOnEveryChange` is `true` the error/success will be shown after the first time the validation is successful
 
 ## **How to use it**
 
@@ -32,328 +31,183 @@ To install execute:
 
 `npm install @hybris-software/use-ful-form`
 
+Then you can import useForm with `import useForm from "@hybris-software/use-ful-form"`
+
+The hook requires an object as argument. At the moment this object should contain just a key named `inputs`, its value is an object where the key identifies the single input and the content is described below.
+
 **_Parameter:_**
 
 The parameter is a dictionary where the keys are the identifiers of the fields and the value is a dictionary with the following parameters:
 
-| Parameter | Type                                                                | Description                                                                                                                                                                                                                                                                                                                                           |
-| --------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| type      | string                                                              | `email`, `username`, `password`, `confirmPassword`, `checkbox` or other                                                                                                                                                                                                                                                                               |
-| value     | string                                                              | Initial value. Default is `false` for `checkbox` type, otherwise is an empty string                                                                                                                                                                                                                                                                   |
-| required  | boolean                                                             | Default `false`. If is `true`, the default `validateNoEmptyInput` validator is executed which sets the error to `{ value: false, message: "This field is required" }` if the field is empty                                                                                                                                                           |
-| validator | `(input: string, values: any) => {value: boolean, message: string}` | A function used to validate the field. It takes the current value of the input and a dictionary `{fieldName: "actualValue"}` containing the values of all other inputs to the form. It should return the error value in the format described above. If it is not specified, the form will try to execute a built-in validator based on the input type |
-| formatter | `(value: string) => string`                                         | A function to format the input whenever its value changes                                                                                                                                                                                                                                                                                             |
+| Parameter                 | Type                                         | Description                                                                                                                        |
+| ------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| apiName                   | string                                       | The name of the input returned by the `getApiBody` function, by default is the input key                                           |
+| nature                    | string                                       | `email`, `username`, `password`, `confirmPassword`, `checkbox` or other. More details below                                        |
+| required                  | boolean                                      | If the input is required, default `false`                                                                                          |
+| value                     | string                                       | Initial value. Default depends on the input nature, see below                                                                      |
+| validator                 | `(value, values) => [isValid, errorDetails]` | The validation function, see the next section to know how it works and the one about input natures to learn about the default ones |
+| formatter                 | `(value) => formattedValue`                  | A function to format the input whenever its value changes                                                                          |
+| sendToApi                 | boolean                                      | If the input value should be returned bu the `getApiBody` function                                                                 |
+| errorOnEveryChange        | boolean                                      | Show the error immediately after first input, default `false`                                                                      |
+| checkSuccessOnEveryChange | boolean                                      | Start showing errors from the first input without errors, default `false`                                                          |
 
-<br>
-<br>
+**_Values returned by the hook:_**
 
-**_Returned parameters:_**
+| Parameter        | Type                                  | Description                                                                                                                         |
+| ---------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| values           | `{inputName: inputValue,}`            | A dictionary containing the values of all the inputs                                                                                |
+| errors           | `{inputName: [isValid, errorDetails]` | A dictionary containing the errors of all the inputs                                                                                |
+| getInputProps    | `(inputName) => {props}`              | Used to obtain the necessary functions and values of an input to get and update its value and get the error                         |
+| isValid          | `() => boolean`                       | Returns `true` if all the validations pass, `false` otherwise                                                                       |
+| reset            | `() => void`                          | Reset the form to the initial state                                                                                                 |
+| resetInput       | `(inputName) => void`                 | Reset a single input to the initial state                                                                                           |
+| getApiBody       | `() => any`                           | Returns the body that sould be sent in the API call                                                                                 |
+| pushErrorDetails | `(apiName, errorDetails) => {}`       | Pushes the errorDetails to an input and sets isValid to false                                                                       |
+| fetchQueryErrors | `(errors) => {}`                      | Pass an object with api name as key and error details to this function and it will push error details to any of the received inputs |
 
-| Parameter     | Type                                              | Description                                                                                                 |
-| ------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| getInputProps | `(fieldName: string) => props`                    | Used to obtain the necessary functions and values of an input to get and update its value and get the error |
-| values        | `{fieldName: string,}`                            | A dictionary containing the values of all the inputs                                                        |
-| errors        | `{fieldName: {value: boolean?, message: string?}` | A dictionary containing the errors of all the inputs                                                        |
-| isFormValid   | `() => boolean`                                   | Returns `true` if all the validations pass, `false` otherwise                                               |
-| getApiBody    | `() => any`                                       | Returns the body that sould be sent in the API call                                                         |
+## **Validation and formatting**
 
-<br>
+### Validation function
 
-## **Example**
+The validation function receives two arguments:
 
-### **Example 1 - Basic Usage**: use useForm() with built-in validators and built-in foramtter based on type. If you don't specify a validator, the hook will try to execute a built-in one based on the type.
+- `value` which is the value of the input being validated
+- `values` which is an object containing the values of all inputs
+
+The output should be a list with two items inside:
+
+- The first one is a validator which will set isValid for the input
+- The secount one will set the error details. Is suggested to insert a string but any data type will work
+
+Some prebuilt validators are available.
 
 ```javascript
-const  form = useForm({
-	email: {
-		type: "email",
-	},
-	password: {
-		type: "password",
-	},
-	confirmPassword: {
-		type: "confirmPassword",
-	},
-}
-
-return (
-...
-
-<InputField
-	className={Style.inputField}
-	label="Your Email"
-	type="email"
-	placeholder="Email"
-	onPaste={false}
-	validationOnBlur={true}
-	icon={<TbMail  />}
-	{...form.getInputProps("email")}
-/>
-
-<InputField
-	className={Style.inputField}
-	label="Your Password"
-	type="password"
-	placeholder="Password"
-	onPaste={false}
-	validationOnBlur={true}
-	icon={<TbMail  />}
-	{...form.getInputProps("password")}
-/>
-<InputField
-	className={Style.inputField}
-	label="Confirm Password"
-	type="confirmPassword"
-	placeholder="Confirm Password"
-	onPaste={false}
-	validationOnBlur={true}
-	icon={<TbMail  />}
-	{...form.getInputProps("confirmPassword")}
-/>
-
-...
-)
+import {
+  validateConfirmPassword,
+  validateEmail,
+  validatePassword,
+  validateRequiredCheckbox,
+  validateRequiredGeneric,
+  validateRequiredString,
+} from "@hybris-software/use-ful-form/Utils/Validators";
 ```
 
-### **Example 2 - Advanced Usage**: use useForm() with custom validators and custom formatter. If you specify your own validator and/or formatter, the hook will override the built-in ones.
+### Formatter
+
+A formatter is a function that receives the original value as input every time the input changes and should return a formatted value.
+
+Some prebuilt formatters are available.
 
 ```javascript
-const  yourEmailValidator = (e) => {
-	// your email validator
+import {
+  formatEmail,
+  formatLowerCase,
+  formatUsername,
+} from "@hybris-software/use-ful-form/Utils/Formatters";
+```
+
+## **Available input natures**
+
+| nature          | default value | default validator         | default formatter | default validator when required |
+| --------------- | ------------- | ------------------------- | ----------------- | ------------------------------- |
+| email           | `""`          | `validateEmail`           | `formatEmail`     | `validateRequiredString`        |
+| username        | `""`          |                           | `formatUsername`  | `validateRequiredString`        |
+| password        | `""`          | `validatePassword`        |                   | `validateRequiredString`        |
+| confirmPassword | `""`          | `validateConfirmPassword` |                   | `validateRequiredString`        |
+| checkbox        | `false`       |                           |                   | `validateRequiredCheckbox`      |
+
+## **Examples**
+
+### **Example 1 - Basic Usage**
+
+```javascript
+import logo from "./logo.svg";
+import "./App.css";
+
+import { ThemeProvider, InputField, Button } from "@hybris-software/ui-kit";
+import useForm from "@hybris-software/use-ful-form";
+import { validateEmail } from "@hybris-software/use-ful-form/Utils/Validators";
+
+const exampleInput = {
+  inputs: {
+    username: {
+      //apiName: "username", // Default: key
+      type: "username", // Default: undefined
+      required: true, // Default: false
+      //value: "", // Default: depends on type, empty string otherwise
+      //validator: (val, values) => ([true, null]), // Default: depends on type, undefined otherwise
+      //formatter: (val) => (val),  // Default: depends on type, undefined otherwise
+      //sendToApi: true, // Default: true
+      //errorOnEveryChange: true, // Default: false
+      checkSuccessOnEveryChange: true, // Default: false
+    },
+    email: {
+      value: "test@no.no",
+      type: "email",
+      required: true,
+      checkSuccessOnEveryChange: true,
+      validator: validateEmail, // Optional, is validateEmail by default due to type
+    },
+    password: {
+      type: "password",
+      required: true,
+      errorOnEveryChange: true,
+    },
+    confirmPassword: {
+      type: "confirmPassword",
+      required: true,
+      checkSuccessOnEveryChange: true,
+      sendToApi: false,
+    },
+  },
 };
 
-function  yourFormatter(value) {
-	// your formatter
+function App() {
+  const form = useForm(exampleInput);
+  return (
+    <ThemeProvider>
+      <div className="App">
+        <header className="App-header">
+          <img src={logo} className="App-logo" alt="logo" />
+          <p>
+            Edit <code>src/App.js</code> and save to reload.
+          </p>
+          <a
+            className="App-link"
+            href="https://reactjs.org"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn React
+          </a>
+          <div>
+            <InputField
+              maxLength={2}
+              readOnly={true}
+              {...form.getInputProps("username")}
+            />
+            <InputField readOnly={false} {...form.getInputProps("email")} />
+            <InputField {...form.getInputProps("password")} />
+            <InputField {...form.getInputProps("confirmPassword")} />
+            <Button
+              disabled={!form.isValid()}
+              onClick={() => console.log(form.getApiBody())}
+            >
+              Submit
+            </Button>
+            <Button onClick={() => console.log(form.reset())}>Reset</Button>
+            <Button onClick={() => console.log(form.resetInput("username"))}>
+              Reset username
+            </Button>
+            <Button onClick={() => console.log(form.resetInput("email"))}>
+              Reset email
+            </Button>
+          </div>
+        </header>
+      </div>
+    </ThemeProvider>
+  );
 }
 
-const  form = useForm({
-	email: {
-		validator:  yourEmailValidator,
-	},
-	firstNAme: {
-		formatter:  yourFormatter,
-	},
-}
-
-return (
-...
-<InputField
-	className={Style.inputField}
-	label="Your Email"
-	type="email"
-	placeholder="Email"
-	onPaste={false}
-	validationOnBlur={true}
-	icon={<TbMail  />}
-	{...form.getInputProps("email")}
-/>
-<InputField
-	className={Style.inputField}
-	label="First Name"
-	placeholder="First Name"
-	onPaste={false}
-	validationOnBlur={true}
-	icon={<TbMail  />}
-	{...form.getInputProps("firstName")}
-/>
-...
-)
+export default App;
 ```
-
-## **Built-in Validators**
-
-```javascript
-function validateCheckbox(value) {
-  if (!value) {
-    return {
-      value: false,
-    };
-  } else {
-    return {
-      value: true,
-    };
-  }
-}
-
-function validateConfirmPassword(value, values) {
-  if (value !== values["password"]) {
-    return {
-      value: false,
-      message: "Passwords do not match",
-    };
-  } else {
-    return {
-      value: true,
-    };
-  }
-}
-
-const validateEmail = (e) => {
-  function checkIfIsEmail(email) {
-    const re =
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(String(email).toLowerCase());
-  }
-
-  if (checkIfIsEmail(e)) {
-    return { value: true };
-  } else {
-    return { value: false, message: "Invalid email" };
-  }
-};
-
-function validateNoEmptyInput(input) {
-  let inputSanitized;
-  inputSanitized = input.trim();
-
-  if (inputSanitized === "") {
-    return {
-      value: false,
-      message: "This field is required",
-    };
-  } else {
-    return {
-      value: true,
-    };
-  }
-}
-
-function checkPassword(password) {
-  if (password.length <= 8 || !password.match(/[a-z]/i)) {
-    return {
-      value: false,
-      message:
-        "Password must be at least 8 characters long and one lowercase letter",
-      security: "none",
-    };
-  } else if (!password.match(/[0-9]/)) {
-    return {
-      value: false,
-      message: "Password must contain at least one number",
-      security: "low",
-    };
-  } else if (!password.match(/[A-Z]/)) {
-    return {
-      value: false,
-      message: "Password must contain at least one uppercase letter",
-      security: "medium",
-    };
-  } else if (!password.match(/[^a-zA-Z0-9]/g)) {
-    return {
-      value: false,
-      message: "Password must contain at least one special character",
-      security: "high",
-    };
-  } else {
-    return {
-      value: true,
-      security: "strong",
-    };
-  }
-}
-
-const validatePassword = (value) => {
-  if (value.length === 0) {
-    return { value: null };
-  } else {
-    return checkPassword(value);
-  }
-};
-```
-
-## **Built-in Formatters**
-
-```javascript
-function formatterLowerCase(value) {
-  return value.toLowerCase();
-}
-
-function formatterUsername(value) {
-  function replaceSpecialCharacterWithSpace(str) {
-    return str.replace(/[^a-zA-Z0-9]\_\./g, "");
-  }
-
-  return replaceSpecialCharacterWithSpace(value.replace(" ", "").toLowerCase());
-}
-```
-
-## **Built-in Utilities**
-
-### **classNames**
-
-`classNames` is a utility function that allows you to conditionally join classNames together. It is used in the library to conditionally add classNames to the components.
-
-```javascript
-function classNames(...classes) {
-  const finalClasses = [];
-  classes.forEach((classEntry) => {
-    if (typeof classEntry === "string") {
-      finalClasses.push(classEntry);
-    } else if (typeof classEntry === "object") {
-      if (classEntry.condition) {
-        finalClasses.push(classEntry.class);
-      }
-    }
-  });
-  return finalClasses.join(" ");
-}
-export default classNames;
-```
-
-### **PasswordStyle and passwordStyleStates**
-
-In order to customize the style of the password inputs based on the security level, you can use the following utility functions:
-
-```javascript
-function passwordStyleStates(
-  securityLevel,
-  lowClass,
-  mediumClass,
-  highClass,
-  strongClass
-) {
-  if (securityLevel === "low") {
-    return lowClass;
-  } else if (securityLevel === "medium") {
-    return mediumClass;
-  } else if (securityLevel === "high") {
-    return highClass;
-  } else if (securityLevel === "strong") {
-    return strongClass;
-  } else {
-    return "";
-  }
-}
-
-export default passwordStyleStates;
-```
-
-You can import `PasswordStyle` and `passwordStyleStates` that are respectively the styled component and the utility function. These are only a base for you to customize the style of the password input based on the security level.
-To import this function in your project, use the following code:
-
-```javascript
-// Import
-import useForm, {
-  PasswordStyle,
-  passwordStyleStates,
-} from "@hybris-software/use-ful-form";
-
-// How to use InputField with passwordStyleStates
-<InputField
-  className={classNames(
-    Style.inputField,
-    passwordStyleStates(
-      form.errors["password"].security,
-      PasswordStyle.low,
-      PasswordStyle.medium,
-      PasswordStyle.high,
-      PasswordStyle.strong
-    )
-  )}
-  label="Password"
-  type="password"
-  placeholder="Password"
-  icon={<Your Icon />}
-  {...form.getInputProps("password")}
-/>;
-````
