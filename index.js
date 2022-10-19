@@ -85,8 +85,6 @@ const useForm = ({ inputs }) => {
       }
     });
 
-    console.log(newShowErrors);
-
     setShowErrors((showErrors) => ({
       ...(oldShowErrors || showErrors),
       ...newShowErrors,
