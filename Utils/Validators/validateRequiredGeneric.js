@@ -6,7 +6,7 @@ const genericRequiredValidator = (value) => {
   }
 
   if (typeof value === "string") {
-    validateRequiredString(value);
+    return validateRequiredString(value);
   } else if (typeof value === "number") {
     if (isNaN(value)) {
       return false;
