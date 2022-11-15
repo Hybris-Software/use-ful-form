@@ -130,17 +130,18 @@ const useForm = ({ inputs }) => {
 
   const pushErrorDetails = (apiName, errorDetails) => {
     const key = _getKeyFromApiName(apiName);
+    const _errorDetails = Array.isArray(errorDetails) ? errorDetails.join(" ") : errorDetails;
 
     setErrors((errors) => ({
       ...errors,
-      [key]: [false, errorDetails],
+      [key]: [false, _errorDetails],
     }));
   };
 
   const fetchQueryErrors = (receivedErrors) => {
     const newErrors = Object.keys(receivedErrors).reduce((result, errorKey) => {
       const key = _getKeyFromApiName(errorKey);
-      result[key] = [false, receivedErrors[errorKey]];
+      result[key] = [false, Array.isArray(errorDetails) ? receivedErrors[errorKey].join(" ") : receivedErrors[errorKey]];
     }, {});
 
     setErrors((errors) => ({
