@@ -142,6 +142,7 @@ const useForm = ({ inputs }) => {
     const newErrors = Object.keys(receivedErrors).reduce((result, errorKey) => {
       const key = _getKeyFromApiName(errorKey);
       result[key] = [false, Array.isArray(receivedErrors[errorKey]) ? receivedErrors[errorKey].join(" ") : receivedErrors[errorKey]];
+      return result;
     }, {});
 
     setErrors((errors) => ({
