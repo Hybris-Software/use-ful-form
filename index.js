@@ -187,7 +187,8 @@ const useForm = ({ inputs }) => {
   const getApiBody = () => {
     return Object.keys(inputs).reduce((result, key) => {
       if (inputs[key].sendToApi !== false) {
-        result[key] = values[key];
+        const apiName = inputs[key].apiName || key;
+        result[apiName] = values[key];
       }
       return result;
     }, {});
