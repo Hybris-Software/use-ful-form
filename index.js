@@ -122,6 +122,14 @@ const useForm = ({ inputs }) => {
    * ERRORS
    ***************************************/
 
+  const _showAllErrors = () => {
+    const newShowErrors = Object.keys(inputs).reduce((result, key) => {
+      result[key] = true;
+      return result;
+    }, {});
+    setShowErrors(newShowErrors);
+  };
+
   const pushErrorDetails = (apiName, errorDetails) => {
     const key = _getKeyFromApiName(apiName);
     const _errorDetails = Array.isArray(errorDetails)
@@ -185,6 +193,11 @@ const useForm = ({ inputs }) => {
     );
   };
 
+  const validate = () => {
+    _showAllErrors();
+    return isValid();
+  }
+
   const getApiBody = () => {
     return Object.keys(inputs).reduce((result, key) => {
       if (inputs[key].sendToApi !== false) {
@@ -200,6 +213,7 @@ const useForm = ({ inputs }) => {
     errors,
     getInputProps,
     isValid,
+    validate,
     reset,
     resetInput,
     getApiBody,

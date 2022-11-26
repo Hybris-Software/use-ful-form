@@ -59,6 +59,7 @@ The parameter is a dictionary where the keys are the identifiers of the fields a
 | errors           | `{inputName: [isValid, errorDetails]` | A dictionary containing the errors of all the inputs                                                                                |
 | getInputProps    | `(inputName) => {props}`              | Used to obtain the necessary functions and values of an input to get and update its value and get the error                         |
 | isValid          | `() => boolean`                       | Returns `true` if all the validations pass, `false` otherwise                                                                       |
+| validate         | `() => boolean`                       | Returns `true` if all the validations pass, `false` otherwise. Like `isValid` but shows all the errors on the inputs                |
 | reset            | `() => void`                          | Reset the form to the initial state                                                                                                 |
 | resetInput       | `(inputName) => void`                 | Reset a single input to the initial state                                                                                           |
 | getApiBody       | `() => any`                           | Returns the body that sould be sent in the API call                                                                                 |
