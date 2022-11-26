@@ -24,12 +24,13 @@ const useForm = ({ inputs }) => {
   }, {});
 
   const [values, setValues] = useState(initialValues);
+  const [lastUpdatedKey, setLastUpdatedKey] = useState(null);
   const [errors, setErrors] = useState({});
   const [showErrors, setShowErrors] = useState(initialShowErrors);
 
   useEffect(() => {
-    _validate(initialValues);
-  }, []);
+    _validate(values);
+  }, [values]);
 
   /***************************************
    * UTILITIES
@@ -50,7 +51,7 @@ const useForm = ({ inputs }) => {
    * INPUT CHANGE
    ***************************************/
 
-  const _validate = (values, updatedKey = null, oldShowErrors = null) => {
+  const _validate = (values) => {
     const newErrors = {};
     const newShowErrors = {};
     Object.entries(inputs).forEach(([key, inputDetails]) => {
@@ -69,10 +70,10 @@ const useForm = ({ inputs }) => {
       }
     });
 
-    if (updatedKey && inputs[updatedKey].errorOnEveryChange === true) {
+    if (lastUpdatedKey && inputs[lastUpdatedKey].errorOnEveryChange === true) {
       setShowErrors((showErrors) => ({
         ...showErrors,
-        [updatedKey]: true,
+        [lastUpdatedKey]: true,
       }));
     }
 
@@ -86,7 +87,7 @@ const useForm = ({ inputs }) => {
     });
 
     setShowErrors((showErrors) => ({
-      ...(oldShowErrors || showErrors),
+      ...showErrors,
       ...newShowErrors,
     }));
     setErrors(newErrors);
@@ -96,10 +97,9 @@ const useForm = ({ inputs }) => {
   const setFieldValue = (key, value) => {
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter);
     const formattedValue = formatter ? formatter(value) : value;
-    const newValues = { ...values, [key]: formattedValue };
-
-    setValues(newValues);
-    _validate(newValues, key);
+    
+    setLastUpdatedKey(key);
+    setValues((oldValues) => ({ ...oldValues, [key]: formattedValue }));
   };
 
   /***************************************
@@ -107,21 +107,15 @@ const useForm = ({ inputs }) => {
    ***************************************/
 
   const resetInput = (input) => {
-    const newValues = {
-      ...values,
-      [input]: initialValues[input],
-    };
-    const newShowErrors = {
-      ...showErrors,
-      [input]: false,
-    };
-    setValues(newValues);
-    _validate(newValues, null, newShowErrors);
+    setLastUpdatedKey(null);
+    setShowErrors((oldValues) => ({ ...oldValues, [input]: false }));
+    setValues((oldValues) => ({...oldValues, [input]: initialValues[input]}));
   };
 
   const reset = () => {
+    setLastUpdatedKey(null);
+    setShowErrors({});
     setValues(initialValues);
-    _validate(initialValues, null, {});
   };
 
   /***************************************
@@ -130,7 +124,9 @@ const useForm = ({ inputs }) => {
 
   const pushErrorDetails = (apiName, errorDetails) => {
     const key = _getKeyFromApiName(apiName);
-    const _errorDetails = Array.isArray(errorDetails) ? errorDetails.join(" ") : errorDetails;
+    const _errorDetails = Array.isArray(errorDetails)
+      ? errorDetails.join(" ")
+      : errorDetails;
 
     setErrors((errors) => ({
       ...errors,
@@ -141,7 +137,12 @@ const useForm = ({ inputs }) => {
   const fetchQueryErrors = (receivedErrors) => {
     const newErrors = Object.keys(receivedErrors).reduce((result, errorKey) => {
       const key = _getKeyFromApiName(errorKey);
-      result[key] = [false, Array.isArray(receivedErrors[errorKey]) ? receivedErrors[errorKey].join(" ") : receivedErrors[errorKey]];
+      result[key] = [
+        false,
+        Array.isArray(receivedErrors[errorKey])
+          ? receivedErrors[errorKey].join(" ")
+          : receivedErrors[errorKey],
+      ];
       return result;
     }, {});
 
