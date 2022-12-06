@@ -178,7 +178,7 @@ const useForm = ({ inputs }) => {
       setValue: (value) => setFieldValue(key, value),
       isValid: getError(key)[0],
       errorDetails: getError(key)[1],
-      setShowErrors: () => setShowErrors({ ...showErrors, [key]: true }),
+      setShowErrors: () => setShowErrors((oldShowErrors) => ({ ...oldShowErrors, [key]: true })),
     };
   };
 
