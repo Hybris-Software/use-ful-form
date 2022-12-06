@@ -94,12 +94,55 @@ const useForm = ({ inputs }) => {
     return newErrors;
   };
 
-  const setFieldValue = (key, value) => {
+  const setFieldValue = (key, value, showErrors=false) => {
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter);
     const formattedValue = formatter ? formatter(value) : value;
     
     setLastUpdatedKey(key);
     setValues((oldValues) => ({ ...oldValues, [key]: formattedValue }));
+    if (showErrors) {
+      setShowErrors((oldValues) => ({ ...oldValues, [key]: true }));
+    }
+  };
+
+  const pushFieldValue = (apiName, value) => {
+    const key = _getKeyFromApiName(apiName);
+
+    const formatter = getFormatter(inputs[key].nature, inputs[key].formatter);
+    const formattedValue = formatter ? formatter(value) : value;
+
+    setLastUpdatedKey(null);
+    setValues((oldValues) => ({ ...oldValues, [key]: formattedValue }));
+    setShowErrors((oldValues) => ({ ...oldValues, [key]: true }));
+  };
+
+  const fetchQueryValues = (receivedData, {include, exclude}) => {
+    let dataKeys = Object.keys(receivedData);
+    if (include) {
+      dataKeys = dataKeys.filter((apiName) => include.includes(apiName));
+    }
+    if (exclude) {
+      dataKeys = dataKeys.filter((apiName) => !exclude.includes(apiName));
+    }
+
+    const newValues = dataKeys.reduce((result, apiName) => {
+      const key = _getKeyFromApiName(apiName);
+      result[key] = receivedData[apiName];
+      return result;
+    }, {});
+
+    setLastUpdatedKey(null);
+    setValues((oldValues) => ({
+      ...oldValues,
+      ...newValues,
+    }));
+    setShowErrors((oldValues) => ({
+      ...oldValues,
+      ...Object.keys(newValues).reduce((result, key) => {
+        result[key] = true;
+        return result;
+      }, {}),
+    }));
   };
 
   /***************************************
@@ -219,6 +262,9 @@ const useForm = ({ inputs }) => {
     getApiBody,
     pushErrorDetails,
     fetchQueryErrors,
+    setFieldValue,
+    pushFieldValue,
+    fetchQueryValues,
   };
 };
 
