@@ -201,6 +201,7 @@ const useForm = ({ inputs }) => {
       ...errors,
       ...newErrors,
     }));
+    _showAllErrors();
   };
 
   const getError = (key) => {
