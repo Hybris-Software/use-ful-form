@@ -49,7 +49,7 @@ The parameter is a dictionary where the keys are the identifiers of the fields a
 | formatter                 | `(value) => formattedValue`                  | A function to format the input whenever its value changes                                                                          |
 | sendToApi                 | boolean                                      | If the input value should be returned bu the `getApiBody` function                                                                 |
 | errorOnEveryChange        | boolean                                      | Show the error immediately after first input, default `false`                                                                      |
-| checkSuccessOnEveryChange | boolean                                      | Start showing errors from the first input without errors, default `false`                                                          |
+<!-- | checkSuccessOnEveryChange | boolean                                      | Start showing errors from the first input without errors, default `false`                                                          | -->
 
 **_Values returned by the hook:_**
 
