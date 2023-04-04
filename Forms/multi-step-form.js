@@ -127,9 +127,8 @@ export const useMuliStepForm = ({ steps }) => {
     const input = flatInputs[key];
 
     if (!input) {
-      throw new Error(
-        `Error in setFieldValue: Input with key ${key} not found`,
-      );
+      console.error(`Error in setFieldValue: Input with key ${key} not found`);
+      return;
     }
 
     const formatter = getFormatter(
@@ -162,7 +161,8 @@ export const useMuliStepForm = ({ steps }) => {
     const error = errors[key];
 
     if (!input) {
-      throw new Error(`Error in getError: Input with key ${key} not found`);
+      console.error(`Error in getError: Input with key ${key} not found`);
+      return [null, null];
     }
 
     if (!error) {
@@ -189,9 +189,8 @@ export const useMuliStepForm = ({ steps }) => {
     const input = flatInputs[key];
 
     if (!input) {
-      throw new Error(
-        `Error in getInputProps: Input with key ${key} not found`,
-      );
+      console.error(`Error in getInputProps: Input with key ${key} not found`);
+      return {};
     }
 
     return {
@@ -271,7 +270,8 @@ export const useMuliStepForm = ({ steps }) => {
 
   function nextStep() {
     if (currentStep === steps.length - 1) {
-      throw new Error('Error in nextStep: Already on last step');
+      console.error('Error in nextStep: Already on last step');
+      return false;
     }
 
     const isValid = validateStep(currentStep);
@@ -283,16 +283,19 @@ export const useMuliStepForm = ({ steps }) => {
 
   function previousStep() {
     if (currentStep === 0) {
-      throw new Error('Error in previousStep: Already on first step');
+      console.error('Error in previousStep: Already on first step');
+      return false;
     }
     setCurrentStep(currentStep - 1);
+    return true;
   }
 
   function setStep(step) {
     if (step < 0 || step >= steps.length) {
-      throw new Error(
+      console.error(
         `Error in setStep: Step ${step} is not a valid step number`,
       );
+      return -1;
     }
 
     for (let i = 0; i < step; i++) {
@@ -319,9 +322,10 @@ export const useMuliStepForm = ({ steps }) => {
     const key = getKeyFromApiName(apiName);
 
     if (!key) {
-      throw new Error(
+      console.error(
         `Error in pushErrorDetails: Input with apiName ${apiName} not found`,
       );
+      return;
     }
 
     setErrors((errors) => ({
