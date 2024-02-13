@@ -2,7 +2,8 @@
   "name": "@hybris-software/use-ful-form",
   "version": "2.2.1",
   "dependencies": {
-    "react": "^18.2.0"
+    "react": "^18.2.0",
+    "typescript": "^5.3.3"
   },
   "description": "Simple way to create forms in React",
   "license": "MIT",
@@ -16,5 +17,6 @@
     "validation",
     "react-hook-form",
     "react-package"
-  ]
+  ],
+  "packageManager": "yarn@4.1.0"
 }
