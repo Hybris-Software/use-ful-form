@@ -1,5 +1,13 @@
-const validatePassword = (password) => {
-  if (password.length <= 8 || !password.match(/[a-z]/i)) {
+import { Validator } from "../../types";
+
+export const validatePassword: Validator = (value) => {
+  // Return error if the type is not string
+  if (typeof value !== "string") {
+    return [false, { message: "Invalid password", security: "none" }];
+  }
+
+  // Perform multiple checks to define the password strength
+  if (value.length <= 8 || !value.match(/[a-z]/i)) {
     return [
       false,
       {
@@ -8,7 +16,7 @@ const validatePassword = (password) => {
         security: "none",
       },
     ];
-  } else if (!password.match(/[0-9]/)) {
+  } else if (!value.match(/[0-9]/)) {
     return [
       false,
       {
@@ -16,7 +24,7 @@ const validatePassword = (password) => {
         security: "low",
       },
     ];
-  } else if (!password.match(/[A-Z]/)) {
+  } else if (!value.match(/[A-Z]/)) {
     return [
       false,
       {
@@ -24,7 +32,7 @@ const validatePassword = (password) => {
         security: "medium",
       },
     ];
-  } else if (!password.match(/[^a-zA-Z0-9]/g)) {
+  } else if (!value.match(/[^a-zA-Z0-9]/g)) {
     return [
       false,
       {
@@ -41,5 +49,3 @@ const validatePassword = (password) => {
     ];
   }
 };
-
-export default validatePassword;

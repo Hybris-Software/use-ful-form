@@ -1,7 +1,17 @@
-import inputDefaults from "../Data/inputDefaults";
-import * as validators from "../Utils/Validators";
+import inputDefaults from "../data/input-defaults";
+import * as validators from "../utils/validators";
+import {
+  InputType,
+  InputValue,
+  Validator,
+  Formatter,
+  RequiredValidator,
+} from "../types";
 
-const getDefaultValue = (inputType, value) => {
+const getDefaultValue = (
+  inputType: InputType,
+  value: InputValue
+): InputValue => {
   if (value !== undefined) {
     return value;
   } else if (inputDefaults[inputType] !== undefined) {
@@ -11,7 +21,10 @@ const getDefaultValue = (inputType, value) => {
   }
 };
 
-const getValidator = (inputType, validator) => {
+const getValidator = (
+  inputType: InputType,
+  validator: Validator | undefined
+): Validator | undefined => {
   if (validator !== undefined) {
     return validator;
   } else if (inputDefaults[inputType] !== undefined) {
@@ -21,7 +34,10 @@ const getValidator = (inputType, validator) => {
   }
 };
 
-const getFormatter = (inputType, formatter) => {
+const getFormatter = (
+  inputType: InputType,
+  formatter: Formatter | undefined
+): Formatter | undefined => {
   if (formatter !== undefined) {
     return formatter;
   } else if (inputDefaults[inputType] !== undefined) {
@@ -31,11 +47,11 @@ const getFormatter = (inputType, formatter) => {
   }
 };
 
-const getRequiredValidator = (inputType) => {
+const getRequiredValidator = (inputType: InputType): RequiredValidator => {
   if (inputDefaults[inputType] !== undefined) {
     return inputDefaults[inputType].requiredValidator;
   } else {
-    return validators.validateRequiredGeneric;
+    return validators.requiredValidator;
   }
 };
 

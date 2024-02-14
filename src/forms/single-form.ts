@@ -1,32 +1,53 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   getDefaultValue,
   getValidator,
   getFormatter,
   getRequiredValidator,
-} from '../Utils/getters';
+} from "../utils/getters";
+import {
+  Input,
+  FormInputValues,
+  FormShowErrors,
+  FormErrors,
+  InputValue,
+} from "../types";
 
-export const useForm = ({ inputs }) => {
-  const initialValues = Object.keys(inputs).reduce((result, key) => {
-    result[key] = getDefaultValue(inputs[key].nature, inputs[key].value);
-    return result;
-  }, {});
+export type UseFormProps = {
+  inputs: {
+    [key: string]: Input;
+  };
+};
 
-  const initialShowErrors = Object.keys(inputs).reduce((result, key) => {
-    if (
-      inputs[key].value &&
-      inputs[key].value !== '' &&
-      inputs[key].value !== false
-    ) {
-      result[key] = true;
-    }
-    return result;
-  }, {});
+export const useForm = ({ inputs }: UseFormProps) => {
+  const initialValues: FormInputValues = Object.keys(inputs).reduce(
+    (result, key) => {
+      result[key] = getDefaultValue(inputs[key].nature, inputs[key].value);
+      return result;
+    },
+    {} as FormInputValues
+  );
 
-  const [values, setValues] = useState(initialValues);
-  const [lastUpdatedKey, setLastUpdatedKey] = useState(null);
-  const [errors, setErrors] = useState({});
-  const [showErrors, setShowErrors] = useState(initialShowErrors);
+  // TODO: check if this works
+  const initialShowErrors: FormShowErrors = Object.keys(inputs).reduce(
+    (result, key) => {
+      if (
+        inputs[key].value &&
+        inputs[key].value !== "" &&
+        inputs[key].value !== false
+      ) {
+        result[key] = true;
+      }
+      return result;
+    },
+    {} as FormShowErrors
+  );
+
+  const [values, setValues] = useState<FormInputValues>(initialValues);
+  const [lastUpdatedKey, setLastUpdatedKey] = useState<string | null>(null);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [showErrors, setShowErrors] =
+    useState<FormShowErrors>(initialShowErrors);
 
   useEffect(() => {
     _validate(values);
@@ -36,10 +57,9 @@ export const useForm = ({ inputs }) => {
    * UTILITIES
    ***************************************/
 
-  const _getKeyFromApiName = (apiName) => {
+  const _getKeyFromApiName = (apiName: string) => {
     const key = Object.keys(inputs).find(
-      (inputKey) =>
-        inputs[inputKey].apiName === apiName || inputKey === apiName,
+      (inputKey) => inputs[inputKey].apiName === apiName || inputKey === apiName
     );
     if (!key) {
       throw new Error(`Input with apiName ${apiName} not found`);
@@ -52,20 +72,21 @@ export const useForm = ({ inputs }) => {
    * INPUT CHANGE
    ***************************************/
 
-  const _validate = (values) => {
-    const newErrors = {};
-    const newShowErrors = {};
+  const _validate = (values: FormInputValues) => {
+    const newErrors: FormErrors = {};
+    const newShowErrors: FormShowErrors = {};
+
     Object.entries(inputs).forEach(([key, inputDetails]) => {
       if (inputDetails.required) {
         if (!getRequiredValidator(inputDetails.nature)(values[key])) {
-          newErrors[key] = [false, 'This field is required'];
+          newErrors[key] = [false, "This field is required"];
           return;
         }
       }
 
       const validator = getValidator(
         inputDetails.nature,
-        inputDetails.validator,
+        inputDetails.validator
       );
       if (validator) {
         newErrors[key] = validator(values[key], values);
@@ -98,7 +119,11 @@ export const useForm = ({ inputs }) => {
     return newErrors;
   };
 
-  const setFieldValue = (key, value, showErrors = false) => {
+  const setFieldValue = (
+    key: string,
+    value: InputValue,
+    showErrors = false
+  ) => {
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter);
     const formattedValue = formatter ? formatter(value) : value;
 
@@ -109,7 +134,7 @@ export const useForm = ({ inputs }) => {
     }
   };
 
-  const pushFieldValue = (apiName, value) => {
+  const pushFieldValue = (apiName: string, value: InputValue) => {
     const key = _getKeyFromApiName(apiName);
 
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter);
@@ -120,7 +145,11 @@ export const useForm = ({ inputs }) => {
     setShowErrors((oldValues) => ({ ...oldValues, [key]: true }));
   };
 
-  const fetchQueryValues = (receivedData, { include, exclude }) => {
+  // TODO: replace with generic function
+  const fetchQueryValues = (
+    receivedData: any,
+    { include, exclude }: { include?: string[]; exclude?: string[] } = {}
+  ) => {
     let dataKeys = Object.keys(receivedData);
     if (include) {
       dataKeys = dataKeys.filter((apiName) => include.includes(apiName));
@@ -133,7 +162,7 @@ export const useForm = ({ inputs }) => {
       const key = _getKeyFromApiName(apiName);
       result[key] = receivedData[apiName];
       return result;
-    }, {});
+    }, {} as FormInputValues);
 
     setLastUpdatedKey(null);
     setValues((oldValues) => ({
@@ -145,7 +174,7 @@ export const useForm = ({ inputs }) => {
       ...Object.keys(newValues).reduce((result, key) => {
         result[key] = true;
         return result;
-      }, {}),
+      }, {} as FormShowErrors),
     }));
   };
 
@@ -153,7 +182,7 @@ export const useForm = ({ inputs }) => {
    * RESET FUNCTIONS
    ***************************************/
 
-  const resetInput = (input) => {
+  const resetInput = (input: string) => {
     setLastUpdatedKey(null);
     setShowErrors((oldValues) => ({ ...oldValues, [input]: false }));
     setValues((oldValues) => ({ ...oldValues, [input]: initialValues[input] }));
@@ -173,14 +202,17 @@ export const useForm = ({ inputs }) => {
     const newShowErrors = Object.keys(inputs).reduce((result, key) => {
       result[key] = true;
       return result;
-    }, {});
+    }, {} as FormShowErrors);
     setShowErrors(newShowErrors);
   };
 
-  const pushErrorDetails = (apiName, errorDetails) => {
+  const pushErrorDetails = (
+    apiName: string,
+    errorDetails: InputValue | Array<InputValue>
+  ) => {
     const key = _getKeyFromApiName(apiName);
     const _errorDetails = Array.isArray(errorDetails)
-      ? errorDetails.join(' ')
+      ? errorDetails.join(" ")
       : errorDetails;
 
     setErrors((errors) => ({
@@ -189,17 +221,17 @@ export const useForm = ({ inputs }) => {
     }));
   };
 
-  const fetchQueryErrors = (receivedErrors) => {
+  const fetchQueryErrors = (receivedErrors: any) => {
     const newErrors = Object.keys(receivedErrors).reduce((result, errorKey) => {
       const key = _getKeyFromApiName(errorKey);
       result[key] = [
         false,
         Array.isArray(receivedErrors[errorKey])
-          ? receivedErrors[errorKey].join(' ')
+          ? receivedErrors[errorKey].join(" ")
           : receivedErrors[errorKey],
       ];
       return result;
-    }, {});
+    }, {} as FormErrors);
 
     setErrors((errors) => ({
       ...errors,
@@ -208,7 +240,7 @@ export const useForm = ({ inputs }) => {
     _showAllErrors();
   };
 
-  const getError = (key) => {
+  const getError = (key: string) => {
     if (showErrors[key] && errors[key]) {
       return errors[key];
     } else {
@@ -220,10 +252,10 @@ export const useForm = ({ inputs }) => {
    * INPUT
    ***************************************/
 
-  const getInputProps = (key) => {
+  const getInputProps = (key: string) => {
     return {
       value: values[key],
-      setValue: (value) => setFieldValue(key, value),
+      setValue: (value: InputValue) => setFieldValue(key, value),
       isValid: getError(key)[0],
       errorDetails: getError(key)[1],
       setShowErrors: () =>
@@ -247,14 +279,14 @@ export const useForm = ({ inputs }) => {
     return isValid();
   };
 
-  const getApiBody = () => {
+  const getApiBody = (): any => {
     return Object.keys(inputs).reduce((result, key) => {
       if (inputs[key].sendToApi !== false) {
         const apiName = inputs[key].apiName || key;
         result[apiName] = values[key];
       }
       return result;
-    }, {});
+    }, {} as { [key: string]: Input });
   };
 
   return {
