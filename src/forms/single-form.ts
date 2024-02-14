@@ -286,7 +286,7 @@ export const useForm = ({ inputs }: UseFormProps) => {
         result[apiName] = values[key];
       }
       return result;
-    }, {} as { [key: string]: Input });
+    }, {} as { [key: string]: InputValue });
   };
 
   return {

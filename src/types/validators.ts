@@ -1,9 +1,9 @@
 import { InputValue } from "./inputs";
-import { Error } from "./errors";
+import { ValidationError } from "./errors";
 
 export type Validator = (
   value: InputValue,
   values: { [key: string]: InputValue }
-) => Error;
+) => ValidationError;
 
 export type RequiredValidator = (value: InputValue) => boolean;
