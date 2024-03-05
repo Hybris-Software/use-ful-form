@@ -39,17 +39,17 @@ The hook requires an object as argument. At the moment this object should contai
 
 The parameter is a dictionary where the keys are the identifiers of the fields and the value is a dictionary with the following parameters:
 
-| Parameter                 | Type                                         | Description                                                                                                                        |
-| ------------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| apiName                   | string                                       | The name of the input returned by the `getApiBody` function, by default is the input key                                           |
-| nature                    | string                                       | `email`, `username`, `password`, `confirmPassword`, `checkbox` or other. More details below                                        |
-| required                  | boolean                                      | If the input is required, default `false`                                                                                          |
-| value                     | string                                       | Initial value. Default depends on the input nature, see below                                                                      |
-| validator                 | `(value, values) => [isValid, errorDetails]` | The validation function, see the next section to know how it works and the one about input natures to learn about the default ones |
-| formatter                 | `(value) => formattedValue`                  | A function to format the input whenever its value changes                                                                          |
-| sendToApi                 | boolean                                      | If the input value should be returned bu the `getApiBody` function                                                                 |
-| errorOnEveryChange        | boolean                                      | Show the error immediately after first input, default `false`                                                                      |
-<!-- | checkSuccessOnEveryChange | boolean                                      | Start showing errors from the first input without errors, default `false`                                                          | -->
+| Parameter          | Type                                         | Description                                                                                                                        |
+| ------------------ | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --- |
+| apiName            | string                                       | The name of the input returned by the `getApiBody` function, by default is the input key                                           |
+| nature             | string                                       | `email`, `username`, `password`, `confirmPassword`, `checkbox` or other. More details below                                        |
+| required           | boolean                                      | If the input is required, default `false`                                                                                          |
+| value              | string                                       | Initial value. Default depends on the input nature, see below                                                                      |
+| validator          | `(value, values) => [isValid, errorDetails]` | The validation function, see the next section to know how it works and the one about input natures to learn about the default ones |
+| formatter          | `(value) => formattedValue`                  | A function to format the input whenever its value changes                                                                          |
+| sendToApi          | boolean                                      | If the input value should be returned bu the `getApiBody` function                                                                 |
+| errorOnEveryChange | boolean                                      | Show the error immediately after first input, default `false`                                                                      |
+| <!--               | checkSuccessOnEveryChange                    | boolean                                                                                                                            | Start showing errors from the first input without errors, default `false` | --> |
 
 **_Values returned by the hook:_**
 
@@ -93,7 +93,7 @@ import {
   validateRequiredCheckbox,
   validateRequiredGeneric,
   validateRequiredString,
-} from "@hybris-software/use-ful-form/Utils/Validators";
+} from "@hybris-software/use-ful-form/Utils/Validators"
 ```
 
 ### Formatter
@@ -107,7 +107,7 @@ import {
   formatEmail,
   formatLowerCase,
   formatUsername,
-} from "@hybris-software/use-ful-form/Utils/Formatters";
+} from "@hybris-software/use-ful-form/Utils/Formatters"
 ```
 
 ## **Available input natures**
@@ -125,12 +125,12 @@ import {
 ### **Example 1 - Basic Usage**
 
 ```javascript
-import logo from "./logo.svg";
-import "./App.css";
+import logo from "./logo.svg"
+import "./App.css"
 
-import { ThemeProvider, InputField, Button } from "@hybris-software/ui-kit";
-import useForm from "@hybris-software/use-ful-form";
-import { validateEmail } from "@hybris-software/use-ful-form/Utils/Validators";
+import { ThemeProvider, InputField, Button } from "@hybris-software/ui-kit"
+import useForm from "@hybris-software/use-ful-form"
+import { validateEmail } from "@hybris-software/use-ful-form/Utils/Validators"
 
 const exampleInput = {
   inputs: {
@@ -164,10 +164,10 @@ const exampleInput = {
       sendToApi: false,
     },
   },
-};
+}
 
 function App() {
-  const form = useForm(exampleInput);
+  const form = useForm(exampleInput)
   return (
     <ThemeProvider>
       <div className="App">
@@ -210,8 +210,8 @@ function App() {
         </header>
       </div>
     </ThemeProvider>
-  );
+  )
 }
 
-export default App;
+export default App
 ```

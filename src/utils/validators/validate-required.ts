@@ -1,50 +1,50 @@
-import { RequiredValidator } from "../../types";
+import { RequiredValidator } from "../../types"
 
 export const requiredBooleanValidator: RequiredValidator = (value) => {
   if (value === true) {
-    return true;
+    return true
   } else {
-    return false;
+    return false
   }
-};
+}
 
 export const requiredStringValidator: RequiredValidator = (value) => {
   if (typeof value !== "string") {
-    return false;
+    return false
   }
 
   if (value === null || value === undefined || value.trim() === "") {
-    return false;
+    return false
   } else {
-    return true;
+    return true
   }
-};
+}
 
 export const requiredNumberValidator: RequiredValidator = (value) => {
   if (typeof value !== "number") {
-    return false;
+    return false
   }
 
   if (isNaN(value)) {
-    return false;
+    return false
   }
 
-  return true;
-};
+  return true
+}
 
 export const requiredValidator: RequiredValidator = (value) => {
   if (value === null || value === undefined) {
-    return false;
+    return false
   }
 
   switch (typeof value) {
     case "string":
-      return requiredStringValidator(value);
+      return requiredStringValidator(value)
     case "number":
-      return requiredNumberValidator(value);
+      return requiredNumberValidator(value)
     case "boolean":
-      return requiredBooleanValidator(value);
+      return requiredBooleanValidator(value)
     default:
-      return false;
+      return false
   }
-};
+}

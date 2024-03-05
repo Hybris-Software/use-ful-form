@@ -1,1 +1,1 @@
-export type ValidationError = [boolean, string | any | null];
+export type ValidationError = [boolean, string | any | null]

@@ -1,6 +1,6 @@
-import { InputTypes } from "../data/input-types";
-import * as validators from "../utils/validators";
-import * as formatters from "../utils/formatters";
+import { InputTypes } from "../data/input-types"
+import * as validators from "../utils/validators"
+import * as formatters from "../utils/formatters"
 
 const inputDefaults = {
   [InputTypes.Email]: {
@@ -33,6 +33,6 @@ const inputDefaults = {
     formatter: undefined,
     requiredValidator: validators.requiredBooleanValidator,
   },
-};
+}
 
-export default inputDefaults;
+export default inputDefaults

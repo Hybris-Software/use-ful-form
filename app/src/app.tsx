@@ -1,7 +1,7 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import "./app.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import "./app.css"
 
-import Simple from "./pages/simple";
+import Simple from "./pages/simple"
 
 function App() {
   return (
@@ -10,7 +10,7 @@ function App() {
         <Route path="/simple" element={<Simple />} />
       </Routes>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

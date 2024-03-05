@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import SimpleTextInput from "../components/simpleTextInput";
+import React, { useState } from "react"
+import SimpleTextInput from "../components/simpleTextInput"
 
-import { useForm } from "use-ful-form";
+import { useForm } from "use-ful-form"
 
 export default function Simple() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState(null)
 
   const form = useForm({
     inputs: {
@@ -12,16 +12,16 @@ export default function Simple() {
         nature: "username",
         validator: (value) => {
           if (!value || typeof value !== "string") {
-            return [false, "Username must be a string"];
+            return [false, "Username must be a string"]
           }
           if (value.length < 3) {
-            return [false, "Username must be at least 3 characters long"];
+            return [false, "Username must be at least 3 characters long"]
           }
-          return [true, null];
+          return [true, null]
         },
       },
     },
-  });
+  })
 
   return (
     <div>
@@ -31,11 +31,11 @@ export default function Simple() {
       <div>
         <button
           onClick={() => {
-            const isValid = form.validate();
+            const isValid = form.validate()
             if (isValid) {
-              setData(form.getApiBody());
+              setData(form.getApiBody())
             } else {
-              setData(null);
+              setData(null)
             }
           }}
         >
@@ -47,5 +47,5 @@ export default function Simple() {
         <p>Errors: {JSON.stringify(form.errors)}</p>
       </div>
     </div>
-  );
+  )
 }

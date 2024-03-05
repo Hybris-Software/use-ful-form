@@ -2,8 +2,8 @@ export default function SimpleTextInput({
   value,
   setValue,
 }: {
-  value: any;
-  setValue: (value: string) => void;
+  value: any
+  setValue: (value: string) => void
 }) {
   return (
     <input
@@ -11,5 +11,5 @@ export default function SimpleTextInput({
       value={value}
       onChange={(e) => setValue(e.target.value)}
     />
-  );
+  )
 }

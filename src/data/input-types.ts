@@ -4,4 +4,4 @@ export const InputTypes = {
   Password: "password",
   ConfirmPassword: "confirmPassword",
   Checkbox: "checkbox",
-};
+}
