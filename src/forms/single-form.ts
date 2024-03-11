@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import {
   getDefaultValue,
   getValidator,
@@ -240,16 +240,18 @@ export const useForm = ({ inputs }: UseFormProps) => {
    * GENERIC FUNCTIONS
    ***************************************/
 
-  const isValid = () => {
-    return (
+  const isValid = useMemo(
+    () =>
       Object.keys(errors).length == Object.keys(inputs).length &&
-      Object.keys(errors).every((key) => errors[key] && errors[key][0] === true)
-    )
-  }
+      Object.keys(errors).every(
+        (key) => errors[key] && errors[key][0] === true
+      ),
+    [errors]
+  )
 
   const validate = () => {
     _showAllErrors()
-    return isValid()
+    return isValid
   }
 
   const getApiBody = (): any => {
@@ -266,17 +268,22 @@ export const useForm = ({ inputs }: UseFormProps) => {
   }
 
   return {
+    // Values
     values,
+    setFieldValue,
+    // Errors
     errors,
+    // Inputs
     getInputProps,
+    resetInput,
+    // Form
     isValid,
     validate,
     reset,
-    resetInput,
+    // Api
     getApiBody,
     pushErrorDetails,
     fetchQueryErrors,
-    setFieldValue,
     pushFieldValue,
     fetchQueryValues,
   }
