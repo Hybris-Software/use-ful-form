@@ -11,8 +11,6 @@ export type Input = {
   required?: boolean
   validator?: Validator
   formatter?: Formatter
-  errorOnEveryChange?: boolean
-  checkSuccessOnEveryChange?: boolean
   sendToApi?: boolean
 
   // TODO: add validatorS and formatterS

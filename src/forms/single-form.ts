@@ -44,7 +44,6 @@ export const useForm = ({ inputs }: UseFormProps) => {
   )
 
   const [values, setValues] = useState<FormInputValues>(initialValues)
-  const [lastUpdatedKey, setLastUpdatedKey] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
   const [showErrors, setShowErrors] =
     useState<FormShowErrors>(initialShowErrors)
@@ -74,7 +73,6 @@ export const useForm = ({ inputs }: UseFormProps) => {
 
   const _validate = (values: FormInputValues) => {
     const newErrors: FormErrors = {}
-    const newShowErrors: FormShowErrors = {}
 
     Object.entries(inputs).forEach(([key, inputDetails]) => {
       if (inputDetails.required) {
@@ -95,26 +93,6 @@ export const useForm = ({ inputs }: UseFormProps) => {
       }
     })
 
-    if (lastUpdatedKey && inputs[lastUpdatedKey].errorOnEveryChange === true) {
-      setShowErrors((showErrors) => ({
-        ...showErrors,
-        [lastUpdatedKey]: true,
-      }))
-    }
-
-    Object.entries(inputs).forEach(([key, inputDetails]) => {
-      if (
-        inputs[key].checkSuccessOnEveryChange === true &&
-        newErrors[key][0] === true
-      ) {
-        newShowErrors[key] = true
-      }
-    })
-
-    setShowErrors((showErrors) => ({
-      ...showErrors,
-      ...newShowErrors,
-    }))
     setErrors(newErrors)
     return newErrors
   }
@@ -127,7 +105,6 @@ export const useForm = ({ inputs }: UseFormProps) => {
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter)
     const formattedValue = formatter ? formatter(value) : value
 
-    setLastUpdatedKey(key)
     setValues((oldValues) => ({ ...oldValues, [key]: formattedValue }))
     if (showErrors) {
       setShowErrors((oldValues) => ({ ...oldValues, [key]: true }))
@@ -140,7 +117,6 @@ export const useForm = ({ inputs }: UseFormProps) => {
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter)
     const formattedValue = formatter ? formatter(value) : value
 
-    setLastUpdatedKey(null)
     setValues((oldValues) => ({ ...oldValues, [key]: formattedValue }))
     setShowErrors((oldValues) => ({ ...oldValues, [key]: true }))
   }
@@ -164,7 +140,6 @@ export const useForm = ({ inputs }: UseFormProps) => {
       return result
     }, {} as FormInputValues)
 
-    setLastUpdatedKey(null)
     setValues((oldValues) => ({
       ...oldValues,
       ...newValues,
@@ -183,13 +158,11 @@ export const useForm = ({ inputs }: UseFormProps) => {
    ***************************************/
 
   const resetInput = (input: string) => {
-    setLastUpdatedKey(null)
     setShowErrors((oldValues) => ({ ...oldValues, [input]: false }))
     setValues((oldValues) => ({ ...oldValues, [input]: initialValues[input] }))
   }
 
   const reset = () => {
-    setLastUpdatedKey(null)
     setShowErrors({})
     setValues(initialValues)
   }
