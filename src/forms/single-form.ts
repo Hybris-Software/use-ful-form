@@ -61,7 +61,8 @@ export const useForm = ({ inputs }: UseFormProps) => {
       (inputKey) => inputs[inputKey].apiName === apiName || inputKey === apiName
     )
     if (!key) {
-      throw new Error(`Input with apiName ${apiName} not found`)
+      console.warn(`Input with apiName ${apiName} not found`)
+      return null
     } else {
       return key
     }
@@ -97,11 +98,15 @@ export const useForm = ({ inputs }: UseFormProps) => {
     return newErrors
   }
 
-  const setFieldValue = (
+  const setInputValue = (
     key: string,
     value: InputValue,
     showErrors = false
   ) => {
+    if (!inputs[key]) {
+      throw new Error(`Input with key ${key} not found`)
+    }
+
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter)
     const formattedValue = formatter ? formatter(value) : value
 
@@ -111,8 +116,21 @@ export const useForm = ({ inputs }: UseFormProps) => {
     }
   }
 
-  const pushFieldValue = (apiName: string, value: InputValue) => {
+  const setInputError = (key: string, error: string) => {
+    if (!inputs[key]) {
+      throw new Error(`Input with key ${key} not found`)
+    }
+
+    setErrors((oldErrors) => ({ ...oldErrors, [key]: [false, error] }))
+    setShowErrors((oldShowErrors) => ({ ...oldShowErrors, [key]: true }))
+  }
+
+  const pushApiValue = (apiName: string, value: InputValue) => {
     const key = _getKeyFromApiName(apiName)
+
+    if (!key) {
+      return
+    }
 
     const formatter = getFormatter(inputs[key].nature, inputs[key].formatter)
     const formattedValue = formatter ? formatter(value) : value
@@ -121,11 +139,12 @@ export const useForm = ({ inputs }: UseFormProps) => {
     setShowErrors((oldValues) => ({ ...oldValues, [key]: true }))
   }
 
-  // TODO: replace with generic function
-  const fetchQueryValues = (
+  const fetchApiValues = (
     receivedData: any,
     { include, exclude }: { include?: string[]; exclude?: string[] } = {}
   ) => {
+    // TODO: allow custom value mapping
+
     let dataKeys = Object.keys(receivedData)
     if (include) {
       dataKeys = dataKeys.filter((apiName) => include.includes(apiName))
@@ -136,6 +155,11 @@ export const useForm = ({ inputs }: UseFormProps) => {
 
     const newValues = dataKeys.reduce((result, apiName) => {
       const key = _getKeyFromApiName(apiName)
+
+      if (!key) {
+        return result
+      }
+
       result[key] = receivedData[apiName]
       return result
     }, {} as FormInputValues)
@@ -179,11 +203,16 @@ export const useForm = ({ inputs }: UseFormProps) => {
     setShowErrors(newShowErrors)
   }
 
-  const pushErrorDetails = (
+  const pushApiError = (
     apiName: string,
     errorDetails: InputValue | Array<InputValue>
   ) => {
     const key = _getKeyFromApiName(apiName)
+
+    if (!key) {
+      return
+    }
+
     const _errorDetails = Array.isArray(errorDetails)
       ? errorDetails.join(" ")
       : errorDetails
@@ -194,9 +223,15 @@ export const useForm = ({ inputs }: UseFormProps) => {
     }))
   }
 
-  const fetchQueryErrors = (receivedErrors: any) => {
+  const fetchApiErrors = (receivedErrors: any) => {
+    // TODO: allow custom error mapping
     const newErrors = Object.keys(receivedErrors).reduce((result, errorKey) => {
       const key = _getKeyFromApiName(errorKey)
+
+      if (!key) {
+        return result
+      }
+
       result[key] = [
         false,
         Array.isArray(receivedErrors[errorKey])
@@ -228,7 +263,7 @@ export const useForm = ({ inputs }: UseFormProps) => {
   const getInputProps = (key: string) => {
     return {
       value: values[key],
-      setValue: (value: InputValue) => setFieldValue(key, value),
+      setValue: (value: InputValue) => setInputValue(key, value),
       isValid: getError(key)[0],
       errorDetails: getError(key)[1],
       setShowErrors: () =>
@@ -270,9 +305,10 @@ export const useForm = ({ inputs }: UseFormProps) => {
   return {
     // Values
     values,
-    setFieldValue,
+    setInputValue,
     // Errors
     errors,
+    setInputError,
     // Inputs
     getInputProps,
     resetInput,
@@ -282,9 +318,9 @@ export const useForm = ({ inputs }: UseFormProps) => {
     reset,
     // Api
     getApiBody,
-    pushErrorDetails,
-    fetchQueryErrors,
-    pushFieldValue,
-    fetchQueryValues,
+    fetchApiErrors,
+    fetchApiValues,
+    pushApiError,
+    pushApiValue,
   }
 }
