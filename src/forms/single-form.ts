@@ -6,20 +6,15 @@ import {
   getRequiredValidator,
 } from "../utils/getters"
 import {
-  Input,
   FormInputValues,
   FormShowErrors,
   FormErrors,
   InputValue,
+  UseFormProps,
+  GetInputPropsOptions,
 } from "../types"
 
-export type UseFormProps = {
-  inputs: {
-    [key: string]: Input
-  }
-}
-
-export const useForm = ({ inputs }: UseFormProps) => {
+export const useForm = ({ inputs, onSubmit }: UseFormProps) => {
   const initialValues: FormInputValues = Object.keys(inputs).reduce(
     (result, key) => {
       result[key] = getDefaultValue(inputs[key].nature, inputs[key].value)
@@ -260,7 +255,13 @@ export const useForm = ({ inputs }: UseFormProps) => {
    * INPUT
    ***************************************/
 
-  const getInputProps = (key: string) => {
+  const defaultOnKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      submit()
+    }
+  }
+
+  const getInputProps = (key: string, options?: GetInputPropsOptions) => {
     return {
       value: values[key],
       setValue: (value: InputValue) => setInputValue(key, value),
@@ -268,6 +269,9 @@ export const useForm = ({ inputs }: UseFormProps) => {
       errorDetails: getError(key)[1],
       setShowErrors: () =>
         setShowErrors((oldShowErrors) => ({ ...oldShowErrors, [key]: true })),
+      resetInput: () => resetInput(key),
+      submitForm: submit,
+      ...(options?.handleKeyDown && { onKeyDown: defaultOnKeyDown }),
     }
   }
 
@@ -287,6 +291,12 @@ export const useForm = ({ inputs }: UseFormProps) => {
   const validate = () => {
     _showAllErrors()
     return isValid
+  }
+
+  const submit = () => {
+    if (validate()) {
+      onSubmit(values)
+    }
   }
 
   const getApiBody = (): any => {
@@ -316,6 +326,7 @@ export const useForm = ({ inputs }: UseFormProps) => {
     isValid,
     validate,
     reset,
+    submit,
     // Api
     getApiBody,
     fetchApiErrors,
