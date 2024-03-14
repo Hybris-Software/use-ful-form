@@ -12,9 +12,11 @@ import {
   InputValue,
   UseFormProps,
   GetInputPropsOptions,
+  UseFormReturn,
+  InputProps,
 } from "../types"
 
-export const useForm = ({ inputs, onSubmit }: UseFormProps) => {
+export const useForm = ({ inputs, onSubmit }: UseFormProps): UseFormReturn => {
   const initialValues: FormInputValues = Object.keys(inputs).reduce(
     (result, key) => {
       result[key] = getDefaultValue(inputs[key].nature, inputs[key].value)
@@ -23,16 +25,18 @@ export const useForm = ({ inputs, onSubmit }: UseFormProps) => {
     {} as FormInputValues
   )
 
-  // TODO: check if this works
   const initialShowErrors: FormShowErrors = Object.keys(inputs).reduce(
-    (result, key) => {
+    (result, inputKey) => {
       if (
-        inputs[key].value &&
-        inputs[key].value !== "" &&
-        inputs[key].value !== false
+        inputs[inputKey].value &&
+        inputs[inputKey].value !== "" &&
+        inputs[inputKey].value !== false
       ) {
-        result[key] = true
+        result[inputKey] = true
+      } else {
+        result[inputKey] = false
       }
+
       return result
     },
     {} as FormShowErrors
@@ -200,7 +204,7 @@ export const useForm = ({ inputs, onSubmit }: UseFormProps) => {
 
   const pushApiError = (
     apiName: string,
-    errorDetails: InputValue | Array<InputValue>
+    errorDetails: string | Array<string>
   ) => {
     const key = _getKeyFromApiName(apiName)
 
@@ -261,11 +265,15 @@ export const useForm = ({ inputs, onSubmit }: UseFormProps) => {
     }
   }
 
-  const getInputProps = (key: string, options?: GetInputPropsOptions) => {
+  const getInputProps = (
+    key: string,
+    options?: GetInputPropsOptions
+  ): InputProps => {
     return {
       value: values[key],
-      setValue: (value: InputValue) => setInputValue(key, value),
-      isValid: getError(key)[0],
+      setValue: (value: InputValue, showErrors?: boolean) =>
+        setInputValue(key, value, showErrors),
+      isValid: getError(key)[0] || true,
       errorDetails: getError(key)[1],
       setShowErrors: () =>
         setShowErrors((oldShowErrors) => ({ ...oldShowErrors, [key]: true })),
