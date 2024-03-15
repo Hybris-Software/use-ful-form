@@ -4,7 +4,10 @@ import SimpleTextInput from "../components/simpleTextInput"
 import { useForm } from "use-ful-form"
 
 export default function Simple() {
-  const [data, setData] = useState(null)
+  const onSubmit = ({ data, apiBody }: { data: any; apiBody: any }) => {
+    console.log("Data: ", data)
+    console.log("Api Body: ", apiBody)
+  }
 
   const form = useForm({
     inputs: {
@@ -20,31 +23,31 @@ export default function Simple() {
           return [true, null]
         },
       },
+      password: {
+        nature: "password",
+      },
     },
+    onSubmit: onSubmit,
   })
 
   return (
     <div>
       <div>
-        <SimpleTextInput {...form.getInputProps("username")} />
+        <SimpleTextInput
+          {...form.getInputProps("username", { handleKeyDown: true })}
+        />
       </div>
       <div>
-        <button
-          onClick={() => {
-            const isValid = form.validate()
-            if (isValid) {
-              setData(form.getApiBody())
-            } else {
-              setData(null)
-            }
-          }}
-        >
-          Submit
-        </button>
+        <SimpleTextInput
+          {...form.getInputProps("password", { handleKeyDown: true })}
+        />
       </div>
       <div>
-        <p>Data: {JSON.stringify(data)}</p>
-        <p>Errors: {JSON.stringify(form.errors)}</p>
+        <button onClick={() => form.submit()}>Submit</button>
+      </div>
+      <div>
+        <div>Values: {JSON.stringify(form.values, null, 2)}</div>
+        <div>Errors: {JSON.stringify(form.errors, null, 2)}</div>
       </div>
     </div>
   )
