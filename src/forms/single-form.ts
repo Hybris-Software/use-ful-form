@@ -301,12 +301,6 @@ export const useForm = ({ inputs, onSubmit }: UseFormProps): UseFormReturn => {
     return isValid
   }
 
-  const submit = () => {
-    if (validate()) {
-      onSubmit(values)
-    }
-  }
-
   const getApiBody = (): any => {
     return Object.keys(inputs).reduce(
       (result, key) => {
@@ -318,6 +312,12 @@ export const useForm = ({ inputs, onSubmit }: UseFormProps): UseFormReturn => {
       },
       {} as { [key: string]: InputValue }
     )
+  }
+
+  const submit = () => {
+    if (validate()) {
+      onSubmit({ data: values, apiBody: getApiBody() })
+    }
   }
 
   return {

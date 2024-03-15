@@ -5,7 +5,7 @@ export type UseFormProps = {
   inputs: {
     [key: string]: Input
   }
-  onSubmit: (values: FormInputValues) => void
+  onSubmit: (props: { data: FormInputValues; apiBody: any }) => void
 }
 
 export type FormInputValues = { [key: string]: InputValue }

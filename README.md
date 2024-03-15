@@ -29,9 +29,14 @@ To install execute:
 
 Then you can import useForm with `import useForm from "@hybris-software/use-ful-form"`
 
-The hook requires an object as argument. At the moment this object should contain just a key named `inputs`, its value is an object where the key identifies the single input and the content is described below.
+The hook requires an object as argument with the following keys:
 
-### 2.1 - Parameters
+| Parameter | Type                                           | Description                                                                                                         |
+| --------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| inputs    | Input[]                                        | An object where the keys are the ids of the inputs and the value follows the format described in the section below. |
+| onSubmit  | ({data: any, apiBody: any}) => void (optional) | A function called when calling the `.submit()` function or when the user presses the enter key in an input.         |
+
+### 2.1 - Input parameters
 
 The parameter is a dictionary where the keys are the identifiers of the fields and the value is a dictionary with the following parameters:
 
