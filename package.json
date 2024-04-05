@@ -1,7 +1,7 @@
 {
   "name": "@hybrissoftware/use-ful-form",
   "description": "Simple way to manage forms in React",
-  "version": "3.0.0",
+  "version": "0.1.0",
   "repository": "hybris-software/use-ful-form",
   "keywords": [
     "react",
