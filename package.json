@@ -1,6 +1,17 @@
 {
-  "name": "@hybris-software/use-ful-form",
+  "name": "@hybrissoftware/use-ful-form",
+  "description": "Simple way to manage forms in React",
   "version": "3.0.0",
+  "repository": "hybris-software/use-ful-form",
+  "keywords": [
+    "react",
+    "npm",
+    "input",
+    "form",
+    "validation",
+    "react-hook-form",
+    "react-package"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.mjs",
   "source": "src/index.ts",
@@ -21,6 +32,8 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^10.0.2",
     "@types/react": "^18.2.55",
     "@types/rollup-plugin-peer-deps-external": "^2",
     "postcss": "^8.4.35",
@@ -29,20 +42,9 @@
     "rollup": "^4.10.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
+    "semantic-release": "^23.0.7",
     "tslib": "^2.6.2",
     "typescript": "^5.3.3"
   },
-  "description": "Simple way to create forms in React",
-  "license": "MIT",
-  "repository": "Hybris-Software/useFulForm",
-  "keywords": [
-    "react",
-    "npm",
-    "input",
-    "form",
-    "validation",
-    "react-hook-form",
-    "react-package"
-  ],
   "packageManager": "yarn@4.1.0"
 }
